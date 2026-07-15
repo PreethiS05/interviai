@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { getProfile } from "@/services/profileService";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -21,6 +23,20 @@ function Overview() {
   const threads = threadsQ.data ?? [];
   const resumes = resumesQ.data ?? [];
   const latestAts = resumes[0]?.ats_score ?? null;
+  const [profile, setProfile] = useState<any>(null);
+  useEffect(() => {
+  async function loadProfile() {
+    try {
+      const data = await getProfile("Preethi S Kumar");
+      console.log(data);
+      setProfile(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  loadProfile();
+}, []);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
@@ -40,6 +56,38 @@ function Overview() {
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {profile && (
+  <Card className="mt-6 p-6">
+    <h2 className="text-xl font-semibold mb-4">
+      Resume Summary
+    </h2>
+
+    <p>
+      <strong>Name:</strong> {profile.name}
+    </p>
+
+    <p className="mt-4 font-semibold">Skills</p>
+
+    <div className="flex flex-wrap gap-2 mt-2">
+      {profile.skills?.map((skill: string) => (
+        <span
+          key={skill}
+          className="rounded bg-blue-500 px-2 py-1 text-white text-sm"
+        >
+          {skill}
+        </span>
+      ))}
+    </div>
+
+    <p className="mt-6">
+      <strong>Projects:</strong> {profile.projects?.length ?? 0}
+    </p>
+
+    <p>
+      <strong>Experience:</strong> {profile.experience?.length ?? 0}
+    </p>
+  </Card>
+)}
         <Stat icon={MessagesSquare} label="Interviews" value={String(threads.length)} />
         <Stat icon={FileText} label="Resumes analyzed" value={String(resumes.length)} />
         <Stat

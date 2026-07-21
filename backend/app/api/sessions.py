@@ -45,6 +45,38 @@ async def submit_answer(
     session_id: str,
     request: AnswerQuestionRequest,
 ):
+    # Save the answer first
+    session = await update_answer(
+        session_id=session_id,
+        question_index=request.question_index,
+        answer=request.answer,
+    )
+
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # Get the corresponding question
+    question = session["questions"][request.question_index]["question"]
+
+    # Evaluate using AI
+    from app.services.interview_evaluator import evaluate_answer
+
+    evaluation = evaluate_answer(
+        question=question,
+        answer=request.answer,
+        job_role=session["role"],
+    )
+
+    # Save evaluation
+    from app.services.interview_session_service import update_evaluation
+
+    session = await update_evaluation(
+        session_id=session_id,
+        question_index=request.question_index,
+        evaluation=evaluation,
+    )
+
+    return session
     session = await update_answer(
         session_id=session_id,
         question_index=request.question_index,

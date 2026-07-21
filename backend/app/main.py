@@ -5,6 +5,7 @@ from app.database.mongodb import client
 from app.api.profile import router as profile_router
 from app.api.ats import router as ats_router
 from app.api.interview import router as interview_router
+from app.api.sessions import router as session_router
 
 
 
@@ -20,7 +21,8 @@ async def startup():
 app.include_router(resume_router)
 app.include_router(profile_router)
 app.include_router(ats_router)    
-app.include_router(interview_router)                                                                                                                                                                          
+app.include_router(interview_router)    
+app.include_router(session_router)                                                                                                                                                                      
 
 @app.get("/")
 async def root():
